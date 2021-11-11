@@ -618,6 +618,7 @@ public:
         // Setup model paths
         models.emplace_back("resources/models/box.obj");
         models.emplace_back("resources/models/box_tessellated.obj");
+        models.emplace_back("resources/models/output.obj");
         models.emplace_back("resources/models/plane_tessellated.obj");
         models.emplace_back("resources/models/venus.obj");
 

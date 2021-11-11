@@ -54,6 +54,7 @@ set(
         resources/models/box.obj
         resources/models/box_tessellated.obj
         resources/models/light.obj
+        resources/models/output.obj
         resources/models/plane_tessellated.obj
         resources/models/venus.obj
         resources/shaders/mesh/mesh.frag
