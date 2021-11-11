@@ -1,5 +1,5 @@
 #pragma once
-#include <vec3.h>
+#include <math/vec3.h>
 
 struct Triangle {
     vec3 a, b, c;
@@ -12,7 +12,7 @@ struct Triangle {
     }
 
     vec3 normal() const {
-        return normalize(cross(b - a, c - a));
+        return vec3::normalize(vec3::cross(b - a, c - a));
     }
 
     // Returns a uniformly distributed sample inside the triangle
@@ -31,7 +31,7 @@ struct Triangle {
     }
 
     float area() const {
-        return 0.5f * length(cross(b - a, c - a));
+        return 0.5f * vec3::cross(b - a, c - a).len();
     }
 };
 
