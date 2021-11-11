@@ -103,8 +103,12 @@ struct vec3 {
     }
 
     // Other operations
+    friend float lengthSquared(const vec3 &v) {
+        return v.x * v.x + v.y * v.y + v.z * v.z;
+    }
+
     friend float length(const vec3 &v) {
-        return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+        return sqrt(lengthSquared(v));
     }
 
     friend float dot(const vec3 &lhs, const vec3 &rhs) {

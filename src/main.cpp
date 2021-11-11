@@ -3,12 +3,30 @@
 #include <vector>
 #include <random>
 
+struct Light {
+    vec3 position;
+    float intensity;
+
+    Light() {
+        intensity = 1;
+    }
+
+    Light(const vec3 &position, const float intensity)
+        : position(position), intensity(intensity) {
+    }
+};
+
+static std::ostream &operator <<(std::ostream &os, const Light &light) {
+    os << "{ position: " << light.position << ", intensity: " << light.intensity << " }";
+    return os;
+}
+
 static std::random_device rd;
 static std::mt19937 mt(rd());
 static std::uniform_real_distribution<float> uniform(0.0f, 1.0f);
 
-// Computes Integral[N . L, dA] / TriangleAreas using MonteCarlo
-float computeShading(const std::vector<Triangle> &triangles, const vec3 &light, const int samples) {
+// Computes Integral[light.intensity * (N . L) / distance^2, dA] / TriangleAreas using MonteCarlo
+float computeIrradiance(const std::vector<Triangle> &triangles, const Light &light, const int samples) {
     std::uniform_int_distribution<int> triangleDist(0, triangles.size() - 1);
 
     float integral = 0;
@@ -21,10 +39,11 @@ float computeShading(const std::vector<Triangle> &triangles, const vec3 &light, 
         // Generate a random sample
         const vec3 point = triangle.uniformSample(uniform(mt), uniform(mt));
         const vec3 N = triangle.normal();
-        const vec3 L = normalize(light - point);
+        const vec3 L = normalize(light.position - point);
+        const float distanceSquared = lengthSquared(light.position - point);
         const float nDotL = dot(N, L);
         const float sampleProbability = trianglePickProbability * triangle.uniformSamplePdf();
-        integral += nDotL / sampleProbability;
+        integral += light.intensity * (fabsf(nDotL) / std::max(0.00001f, distanceSquared)) / sampleProbability;
     }
 
     // Result of MC integration (Integral[N . L, dA])
@@ -41,17 +60,20 @@ float computeShading(const std::vector<Triangle> &triangles, const vec3 &light, 
 
 void run(const vec3 quad[2][4]) {
     const std::vector<Triangle> trapezoid = {
-        Triangle(quad[0][0], quad[0][1], quad[0][2]),
-        Triangle(quad[0][0], quad[0][2], quad[0][3])
+        Triangle(quad[1][0], quad[1][1], quad[1][2]),
+        Triangle(quad[1][0], quad[1][2], quad[1][3])
     };
 
     std::cout << trapezoid[0] << std::endl;
     std::cout << trapezoid[1] << std::endl;
 
-    const vec3 light(-50, -70, 20);
+    const Light light(vec3(-50, -70, 20), 50);
+    std::cout << light << std::endl;
+
     int samples = 1;
     for (int i = 0; i < 7; i++) {
-        std::cout << "computeShading(trapezoid, light, " << samples << "): " << computeShading(trapezoid, light, samples) << std::endl;
+        std::cout << "computeIrradiance(trapezoid, light, " << samples << "): " << computeIrradiance(trapezoid, light,
+                                                                                                     samples) << std::endl;
         samples *= 10;
     }
 }
